@@ -1,7 +1,7 @@
 # Tasks for Muse
 
-This repo is an async task channel between zh and Muse.
-zh drops task files here; Muse polls the repo on a schedule, executes the tasks,
+This repo is an async task channel between dilfish and Muse.
+dilfish drops task files here; Muse polls the repo on a schedule, executes the tasks,
 and writes result files back. No need to open the Muse app.
 
 ## Layout
@@ -19,19 +19,19 @@ and writes result files back. No need to open the Muse app.
 
 ## Rules
 
-1. Task files are write-once: zh creates them, Muse only reads them.
+1. Task files are write-once: dilfish creates them, Muse only reads them.
    Muse never edits or deletes a task file.
 2. Result files are write-once: Muse creates `NNfinished-<slug>` exactly once
-   per task. zh never edits result files; follow-ups go in new task files.
+   per task. dilfish never edits result files; follow-ups go in new task files.
 3. A task counts as "new" when no matching `NNfinished-<slug>` exists yet
    in the same directory.
 4. Write task files atomically — create the file complete in one go, don't
    append to it later. Muse may start reading at any poll.
 5. One task per file. Independent tasks go in separate files so they can be
    picked up and run in parallel.
-6. If a task is unclear, or it needs zh's interactive approval (sending
+6. If a task is unclear, or it needs dilfish's interactive approval (sending
    messages, purchases, logins, anything irreversible), Muse does NOT guess.
-   It records the task as blocked in the result file, and zh follows up with
+   It records the task as blocked in the result file, and dilfish follows up with
    a new task file.
 7. No secrets in this repo. Credentials stay in Muse's secure storage;
    only public keys and non-sensitive config live here.
