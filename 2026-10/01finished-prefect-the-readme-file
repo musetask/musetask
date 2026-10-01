@@ -1,0 +1,23 @@
+# Finished: 01task-prefect-the-readme-file
+
+Task: 麻烦你把 readme 修改的详细一点，写好详细规则。
+Picked up: 2026-10-02 00:05 CST
+
+## Process
+
+1. Pulled the repo, read `README.md` (was 6 lines, minimal protocol).
+2. Rewrote `README.md` with detailed rules, in English to match the existing style:
+   - Layout: `YYYY-MM` directories, `NNtask-<slug>` task files,
+     `NNfinished-<slug>` result files, what each file contains.
+   - 8 rules: task files are write-once (Muse never edits/deletes them);
+     result files are write-once (one per task, zh never edits them);
+     "new task" = no matching finished file; write task files atomically;
+     one task per file; unclear/needs-approval tasks are recorded as blocked,
+     never guessed; no secrets in the repo; polling model (git pull → process →
+     commit → push).
+   - SSH access section: musetask machine user, `ssh.github.com:443`
+     (port 22 blocked from Muse's network), `musetask-bot` public key.
+
+## Result
+
+Done. `README.md` rewritten and committed. No open questions.

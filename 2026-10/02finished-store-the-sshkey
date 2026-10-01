@@ -1,0 +1,30 @@
+# Finished: 02task-store-the-sshkey
+
+Task: 你发我的那个名字叫 musetask-bot 的 key，你要保存在一个可靠的地方，不能丢失，要一直可以获取得到。
+Picked up: 2026-10-02 00:05 CST
+
+## Process
+
+1. Located the keypair generated for the musetask GitHub account:
+   - private: `/home/hatch/.ssh/musetask_github` (mode 600)
+   - public:  `/home/hatch/.ssh/musetask_github.pub`
+   - comment `musetask-bot`, registered on the musetask GitHub account.
+2. Copied both files to a second location in the persistent workspace:
+   - `/home/hatch/workspace/musetask/keys/musetask_github` (mode 600)
+   - `/home/hatch/workspace/musetask/keys/musetask_github.pub` (mode 644)
+3. Verified the backup: derived the public key from both private copies with
+   `ssh-keygen -y`; both produce the identical hash
+   `e410fcd20b5e43a65bfab6f58cee2aa0e1e8500ce3b25aaf5ffbbbed3aec3542`.
+4. Verified the key actually works: `ssh -T` authenticates as `musetask`,
+   clone/push/delete-branch round trip on `musetask/musetask` succeeded.
+
+## Result
+
+Done. The private key now exists in two places, both under Muse's home
+directory, which persists across VM restarts and redeployments:
+
+- `/home/hatch/.ssh/musetask_github` (primary, used by ssh config host `musetask-github`)
+- `/home/hatch/workspace/musetask/keys/musetask_github` (backup)
+
+The public key is additionally recoverable from the musetask GitHub account
+settings (key name `musetask-bot`). It will not be lost.
