@@ -1,0 +1,32 @@
+把 finished 文件里的 `Last-processed-comment` 机制补写进 README。
+
+背景：commit 145a911 已经在每个 finished 文件的头部加了一行
+`Last-processed-comment: 0`，作为「已处理评论」的水位标记，但 README 的规则部分
+还没有描述这条机制。任务和评论一多，这个字段的语义不清楚，Muse 续跑时容易踩坑
+（重复处理同一条评论，或者漏掉新评论）。
+
+请补充：
+
+1. 说明 finished 文件的头部格式，至少包含这两个字段：
+   - `Status:` — IN_PROGRESS / BLOCKED / DONE
+   - `Last-processed-comment:` — 已处理的评论编号水位，新建时为 0
+
+2. 说明评论跟进机制：同一个任务的后续处理一律通过在 Muse 提交的结果 commit
+   上追加评论来跟进，不新开 task 文件。只有两种结局 —— DONE，或者明确的 abort。
+   如果 abort 需要一个独立的 Status 值，请你选定并在 README 里写明，同时说明
+   选定它的理由；后续 finished 文件一律沿用这个值。
+
+3. 说明水位怎么推进：Muse 每轮 poll 拉到评论后，把 `Last-processed-comment`
+   更新成已处理的最高评论编号，只增不减。评论内容本身留在 GitHub 上，
+   不需要复制进 finished 文件。
+
+4. 与现有规则 6 的关系：规则 6 已经写了「BLOCKED 任务通过提交评论续跑」。
+   如果不冲突，就整合进规则 6，不要留两份互相矛盾的描述。
+
+约束：
+
+- 只改 README.md。
+- 不要修改或删除任何已存在的 task 文件和 finished 文件。
+
+完成标准：README 里能查到上述字段的格式和评论跟进规则的说明，且与现有 8 条规则
+不冲突。如果有任何需要我决策的地方，标记 BLOCKED 并在评论里说明，不要自己猜。
