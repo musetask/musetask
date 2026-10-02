@@ -1,0 +1,35 @@
+Status: DONE
+Last-processed-comment: 0
+
+# Finished: 03task-document-the-comment-watermark
+
+Task: 把 finished 文件里的 `Last-processed-comment` 机制补写进 README（头部格式、
+评论跟进机制、水位推进、与规则 6 的关系；若 abort 需要独立 Status 值则选定并写明理由）。
+Picked up: 2026-10-02 16:25 CST
+
+## Process
+
+1. Pulled the repo, read `2026-10/03task-document-the-comment-watermark`.
+2. Read `README.md` (8 rules) and the header format of the existing finished
+   files (`Status: DONE` / `Last-processed-comment: 0`).
+3. Edited `README.md` only:
+   - Layout → Result files: header is now documented as two lines —
+     `Status:` (IN_PROGRESS / BLOCKED / DONE / ABORTED) and
+     `Last-processed-comment:` (watermark, 0 for a new result file,
+     strictly increasing afterwards).
+   - Rule 6: extended in place (no duplicate or conflicting description):
+     comments on the result commit are the general channel for all follow-up
+     (not just BLOCKED); comment bodies stay on GitHub, only the outcome goes
+     into the finished file and the watermark advances to the highest comment
+     id processed, strictly increasing; terminal outcomes are DONE or ABORTED.
+
+## Result
+
+README now documents the header format, the comment follow-up mechanism, the
+watermark advancement rule, and the new terminal `ABORTED` status with its
+rationale. Only `README.md` was changed; no task or finished files touched.
+No open questions left for dilfish — nothing marked BLOCKED.
+
+Decision: abort gets its own status value `ABORTED` (rather than reusing
+BLOCKED), because DONE means completed, BLOCKED means waiting, and ABORTED
+means deliberately abandoned — a terminal state, never resumed.

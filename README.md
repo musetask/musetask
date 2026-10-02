@@ -14,7 +14,14 @@ and writes result files back. No need to open the Muse app.
 - Result files: `NNfinished-<slug>` in the same directory,
   e.g. `2026-10/01finished-fix-the-repo`
   - written by Muse only
-  - starts with a `Status:` line: `IN_PROGRESS`, `BLOCKED`, or `DONE`
+  - starts with a two-line header:
+    - `Status: <value>` — the task's current state; one of `IN_PROGRESS`
+      (being worked on), `BLOCKED` (waiting on dilfish's input), `DONE`
+      (completed successfully), or `ABORTED` (explicitly stopped — a terminal
+      state, never resumed)
+    - `Last-processed-comment: <id>` — watermark: the highest GitHub comment
+      id on the result commit that Muse has already processed. `0` for a new
+      result file; strictly increasing afterwards
   - records: when the task was picked up, what was done step by step,
     the result, and any files/commits produced
 
@@ -37,6 +44,21 @@ and writes result files back. No need to open the Muse app.
    the SAME task by commenting on the result commit; Muse polls the commit's
    comments and resumes, appending to the same finished file until DONE.
    Never open a new task file for the same issue.
+   The comment mechanism is the general channel for all follow-up on a task,
+   not just BLOCKED ones: further instructions always land as comments on the
+   result commit, never as new task files. Comment bodies stay on GitHub and are
+   not copied into the finished file; each poll advances the
+   `Last-processed-comment:` watermark to the highest comment id already
+   processed — strictly increasing, never decreasing, so a comment is never
+   handled twice or skipped. A task has only two terminal outcomes: `DONE`
+   (the work was actually completed) or `ABORTED` (explicitly stopped —
+   by dilfish's decision, or because it is provably impossible). `ABORTED`
+   is a separate status value from `DONE` rather than reusing `BLOCKED`:
+   DONE means the work was completed, ABORTED means it was deliberately
+   abandoned, and BLOCKED means it is merely waiting — keeping all three
+   distinct prevents an abandoned task from looking finished or forever
+   waiting. ABORTED is terminal; it is never resumed. Subsequent finished
+   files use `ABORTED` for this case.
 7. No secrets in this repo. Credentials stay in Muse's secure storage;
    only public keys and non-sensitive config live here.
 8. Polling: Muse pulls this repo on a schedule (cron job `musetask-poll`,
