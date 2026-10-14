@@ -1,0 +1,53 @@
+Status: BLOCKED
+Last-processed-comment: 0
+
+# Finished: 04task-handle-totp-pr1-review
+
+Task: 处理 dilfi5h/totp PR #1 上的 review 评论（issue comment id 6167688244，2026-10-14，
+已按评论原文处理）：finding 1（Detail 保存反馈不可见）、finding 2（旧数据冒号名不迁移）。
+改动针对 dilfi5h/totp 仓库，遵守其 AGENTS.md：不打 tag、不改版本号、不提交
+keystore.properties / *.keystore / 本地 APK。
+Picked up: 2026-10-14 19:57 CST
+
+## Finding 1 — 修复已实现（本地），push 等真机测试
+
+评论指出：`showSnackbar("Saved")` 和空名校验警告在 detail 页显示时发出，但唯一的
+SnackbarHost 在主 Scaffold（MainActivity.kt:221），detail 分支在 MainActivity.kt:201
+就 return —— Save 按了没反应，"Saved" 要等用户退回 vault 才冒出来。
+
+- 复刻了评论中提到的 aeeb5f9 方案（该 commit 在评论作者本地，不在此 clone 中）：
+  detail 分支用 `Box(Modifier.fillMaxSize())` 包住 `DetailScreen`，自带
+  `SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))`。
+  Delete 行为不变（先置 `detailAccount = null`，snackbar 仍显示在列表页）。
+- commit: totp 仓库 `fix/vault-colon-and-feedback` 分支，42e0e26
+  「Detail: give the detail branch its own SnackbarHost」
+- **未 push**：按 totp AGENTS.md 第 5/6 步，真机测试通过前不推代码；且评论作者本地
+  已有 aeeb5f9 同方案 commit，我再推一个同内容 commit 会导致分支分叉。
+  dilfish 真机验证（AGENTS.md 第 4 步签 release 包）后 push 即合并该修复。
+- 单测说明：本机 VM 无 JDK/Gradle/Android SDK，单测无法在此跑；评论已在有工具链的
+  机器上验证 a3f24fe 的 54 tests 0 failures，本次改动只动 Compose UI 代码
+  （MainActivity.kt），不碰任何单测覆盖的 store/vault/export-name 逻辑。
+
+## Finding 2 — 需要 dilfish 拍板（本任务的 BLOCKED 点）
+
+现状：`loadAccounts`（AccountStore.kt:38）把存储条目直接透传，0.0.4 及更早写进的
+`A:B` 在加载后原样存活；导出写出 `A:B` 标签，下次导入会再追加一条剥冒号的重名条目
+（同 secret、新名字），vault 悄悄多一条。评论已在 DESIGN §7 记「旧数据不迁移」。
+
+load 期迁移需要一个碰撞策略（`A:B`/`x` 和 `AB`/`Bx` 剥后撞名时），这是设计决策，
+按约束不替 dilfish 定。候选方案：
+
+- A（维持现状）：不迁移。风险为零，代价是旧数据要手动在 Detail 页改名清理；
+  导出/导入悄悄多条的问题继续存在（可观察、可手动删）。
+- B（迁移 + 碰撞策略），策略三选一：
+  - B1 先到先得：先加载到的条目占剥后名，后到的追加后缀（如 `AB (1)`）；
+  - B2 拒绝合并：碰撞时保留原冒号名并在 UI 标出，提示用户手动处理；
+  - B3 后到覆盖：后加载的条目替换先到的（会改掉用户数据，风险最高）。
+- 倾向建议：A 最安全，B1 次之（数据自动收敛、碰撞可逆、可手动恢复）。
+  一旦选 B，迁移代码约 20–40 行，加 2–3 个单测（碰撞/非碰撞/无冒号数据）。
+
+## Result
+
+- Finding 1：归宿明确 —— 修复落地（本地 commit 42e0e26），待 dilfish 真机测试后 push。
+- Finding 2：归宿待定 —— 需要 dilfish 决定 A / B1 / B2 / B3。收到决定后继续执行。
+- 本文件已推到 musetask 仓库；totp 分支改动未推（见上）。
