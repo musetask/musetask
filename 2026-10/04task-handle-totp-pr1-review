@@ -1,0 +1,40 @@
+处理 https://github.com/dilfi5h/totp/pull/1 上的评论。
+
+这是 dilfi5h/totp 的 PR #1，分支 fix/vault-colon-and-feedback → main，标题
+「Vault: strip ':' from names, clear passwords, save feedback」，目前 OPEN，
+head 是 a3f24fe。PR 上有一条 dilfish 的 review 评论（2026-10-14，
+issue comment id 6167688244），请以评论原文为准，这里只是转述要点：
+
+- 单测结论：a3f24fe 上 `gradle :app:testDebugUnitTest` = 54 tests, 0 failures
+  （StoreCompatibilityTest 38、VaultRuleTest 14、ExportFileNameTest 2）。核心
+  修复本身是站得住的。
+- 问题 1：Detail 页的保存反馈实际不可见。`showSnackbar("Saved")` 和空名校验
+  警告是在 detail 页显示时发出的，但唯一的 SnackbarHost 在主 Scaffold 里
+  （MainActivity.kt:221），而 detail 分支在 MainActivity.kt:201 就 return 了。
+  结果是按 Save 没反应，"Saved" 要等用户退回 vault 才冒出来 —— 也就是本 PR 的
+  目标之一（保存反馈）其实没真正交付。评论说本地 commit aeeb5f9 已经修了
+  （detail 分支用 Box 包住 DetailScreen，自带一个 SnackbarHost），但没推。
+- 问题 2：旧数据里的冒号名不会被迁移。新不变量是「vault 名永远不含 `:`」，
+  但只有写入路径强制它，`loadAccounts`（AccountStore.kt:38）把存储条目直接
+  透传，所以 0.0.4 及更早写进去的 `A:B` 会原样存活。导出会写出 `A:B` 标签，
+  下次导入会再追加一条剥掉冒号的重名条目（同 secret，新名字）。不崩溃、不会
+  误判冲突，但 vault 会悄悄多出一条。评论说这不是一行能改的：两个旧名剥完
+  可能撞成同一个（`A:B`/`x` 和 `AB`/`Bx`），一旦在 load 时相遇，之后
+  `requireExportable` 会在导出时抛错，比现在安静地坏更糟。所以它只在
+  DESIGN §7 记了「旧数据不迁移」，没有自己拍一个碰撞策略。
+- 另外按 totp 仓库 AGENTS.md 第 4 步，评论作者在本地打过 signed release
+  （app-release.apk，3.66 MB，versionCode 4 / versionName 0.0.4 未变，
+  用固定的 release 证书签的）。PR 未合并，没有改版本号也没有打 tag。
+
+请把这轮 review 的意见处理掉。
+
+约束：
+
+- 改动针对 dilfi5h/totp 仓库，不要动 musetask 仓库里的任何文件。
+- 遵守 totp 仓库自己的 AGENTS.md 流程；尤其是：任何情况下不要自行打 tag
+  或修改版本号，不要提交 keystore.properties / *.keystore / 本地 APK。
+- 需要 dilfish 决策或需要真机验证才能定稿的地方，按频道规则处理，不要自己猜。
+
+完成标准：评论里的两个 finding 都有明确归宿（修复落地，或者给出明确的决定
+并在 PR 上说明），单测能跑过；如果卡在缺权限、缺工具链或需要 dilfish 拍板，
+按频道规则标记 BLOCKED 并说明卡在哪一步。
