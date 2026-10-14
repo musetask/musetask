@@ -1,4 +1,4 @@
-Status: BLOCKED
+Status: DONE
 Last-processed-comment: 0
 
 # Finished: 04task-handle-totp-pr1-review
@@ -51,3 +51,10 @@ load 期迁移需要一个碰撞策略（`A:B`/`x` 和 `AB`/`Bx` 剥后撞名时
 - Finding 1：归宿明确 —— 修复落地（本地 commit 42e0e26），待 dilfish 真机测试后 push。
 - Finding 2：归宿待定 —— 需要 dilfish 决定 A / B1 / B2 / B3。收到决定后继续执行。
 - 本文件已推到 musetask 仓库；totp 分支改动未推（见上）。
+
+## 2026-10-14 — dilfish 指出 Finding 2 是写错了，不再 block
+
+dilfish 在聊天中确认：finding 2 的评论内容是他写错的，不需要处理。
+Finding 2 不再需要决策，任务直接标记 DONE。
+Finding 1 的修复（totp 分支 fix/vault-colon-and-feedback commit 42e0e26）
+保持现状：按 AGENTS.md 等 dilfish 真机测试后再 push。
